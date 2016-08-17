@@ -33,6 +33,7 @@ function initMap() {
       'api_key': "75165871b0d46f037be7e2fb1b3fbf2e2cf028b0"
     });
 
+// calls the locu api asynchronously
   $.ajax({
       url: url,
       dataType: "jsonp",
