@@ -1,0 +1,19 @@
+html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+#top {
+  height: 9vh;
+  margin-top: 1vh;
+}
+
+#map {
+  height: 93vh;
+}
+
+.header {
+  height: 7vh;
+  text-align: center;
+}
