@@ -1,4 +1,3 @@
-
 var map;
 var resturantInfo = [];
 var marker;
@@ -17,7 +16,7 @@ function initMap() {
       });
       marker = new google.maps.Marker({});
     }
-// function that takes marker to animate
+    // function that takes marker to animate
   function bounceOnClick(mark){
     resturantInfo().forEach(function(item){
       item.pin.setAnimation(null);
@@ -25,7 +24,7 @@ function initMap() {
     mark.setAnimation(google.maps.Animation.BOUNCE);
   }
 
-//adds the api's parameters to the url.
+  //adds the api's parameters to the url.
     var url = "https://api.locu.com/v1_0/venue/search/";
     url += '?' + $.param({
       "locality": "new york",
@@ -33,11 +32,18 @@ function initMap() {
       'api_key': "75165871b0d46f037be7e2fb1b3fbf2e2cf028b0"
     });
 
-// calls the locu api asynchronously
+    // if the locu api request takes longer than six seconds alert user it failed.
+    var locuRequestTimeout = setTimeout(function(){
+          alert("Sorry, it appers the resturants info failed to load");
+    },6000);
+
+    // calls the locu api asynchronously
   $.ajax({
       url: url,
       dataType: "jsonp",
       success:function(data){
+        // clear the timeout of locuRequestTimeout because the request was succesful.
+        clearTimeout(locuRequestTimeout);
         for (var i = 0; i < data.objects.length; i++) {
           //creates marker for the current resturant
           var marker = new google.maps.Marker({
@@ -52,15 +58,13 @@ function initMap() {
                 bounceOnClick(marker);
                 infowindow.setContent('<div>' + data.objects[i].name + '</div>' + '<div>' + data.objects[i].street_address + '</div>' + '<a href=' + data.objects[i].website_url + '>Website</a>');
                 infowindow.open(map, marker);
-            }
+            };
         })(marker,i));
         //adds info about the resturants to the resturantInfo array.
-          resturantInfo.push({name:data.objects[i].name,lat:data.objects[i].lat,long:data.objects[i].long,pin:marker,address:data.objects[i].street_address,website:data.objects[i].website_url})
+          resturantInfo.push({name:data.objects[i].name,lat:data.objects[i].lat,long:data.objects[i].long,pin:marker,address:data.objects[i].street_address,website:data.objects[i].website_url});
         }
       }
       // if the request fails alert the user
-    }).fail(function(){
-      alert("Sorry, it appers the resturants info failed to load");
     });
 
     // If google maps fails to load after 3 seconds alert the user.
@@ -68,7 +72,7 @@ function initMap() {
       if(!window.google || !window.google.maps) {
        alert("Sorry, Google Maps has failed to load");
      }
-   }, 3000);
+   }, 5000);
 
 
 function AppViewModel() {
@@ -78,8 +82,8 @@ function AppViewModel() {
   resturantInfo = ko.observableArray();
   self.query = ko.observable('');
 
-// every time a input is entered into the search the filteredResturants computed function is run.
-    self.filteredResturants = ko.computed(function(){
+  // every time a input is entered into the search the filteredResturants computed function is run.
+  self.filteredResturants = ko.computed(function(){
       var filter = self.query().toLowerCase();
 
       if(!filter){
@@ -92,7 +96,9 @@ function AppViewModel() {
         return ko.utils.arrayFilter(resturantInfo(),function(item){
           //make the marker not visible and if the item.name matchs the query set the marker to visible.
           //if not leave if not visible.
-          item.pin.setVisible(false)
+          //close infowindow first.
+          infowindow.close();
+          item.pin.setVisible(false);
           if(item.name.toLowerCase().indexOf(filter) !== -1){
             item.pin.setVisible(true);
             return true;
@@ -101,7 +107,7 @@ function AppViewModel() {
       }
     });
 
-//when show info called it animates the selected pin,sets the content of the infowindow and opens it.
+    //when show info called it animates the selected pin,sets the content of the infowindow and opens it.
   self.showInfo = function() {
                bounceOnClick(this.pin);
                infowindow.setContent('<div>' + this.name + '</div>' + '<div>' + this.address + '</div>' + '<a href=' + this.website + '>Website</a>');
