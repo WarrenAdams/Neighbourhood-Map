@@ -64,7 +64,6 @@ function initMap() {
           resturantInfo.push({name:data.objects[i].name,lat:data.objects[i].lat,long:data.objects[i].long,pin:marker,address:data.objects[i].street_address,website:data.objects[i].website_url});
         }
       }
-      // if the request fails alert the user
     });
 
     // If google maps fails to load after 3 seconds alert the user.
